@@ -11,7 +11,7 @@ const stressLevelDescriptions = [
   'Doordash came earlier than expected',
   'Nice warm shower',
   'Pretty, relaxed, and cute',
-  'Not very stressed',
+  'Not that stressed',
   'Slightly tense',
   'Season finale of Project Runway',
   'A bit sad and preoccupied',
@@ -24,7 +24,7 @@ const stressLevelDescriptions = [
   "Master's wifi went out",
   'The power is out, it is storming, and the heat is not working',
   'The NTF wallet transfer is not working',
-  'Having Covid and a flat-time',
+  'Having Covid and a flat-tire',
 ]
 
 export type StressLevelType = {
