@@ -1,7 +1,5 @@
-export const MIN_STRESS_LEVEL = 0
-export const MAX_STRESS_LEVEL = 100
-export const DEFAULT_STRESS_LEVEL = 10
-export const DEFAULT_STRESS_STEP = 5
+import { PrismaClient } from '@prisma/client'
+const db = new PrismaClient()
 
 const stressLevelDescriptions = [
   'Literally squirting',
@@ -27,10 +25,25 @@ const stressLevelDescriptions = [
   'Having Covid and a flat-tire',
 ]
 
-function getDescriptionForStressLevel(level: number) {
-  return stressLevelDescriptions[Math.floor(level / 5)] || 'Not stressed'
+type Stress = {
+  level: number
+  description: string
 }
 
-export function StressLevel(level: number) {
-  return { level, description: getDescriptionForStressLevel(level) }
+async function seed() {
+  let i = -5
+  const levels: Stress[] = stressLevelDescriptions.map((desc) => ({
+    level: (i += 5),
+    description: desc,
+  }))
+  return await Promise.all(
+    levels.map((sl) => {
+      console.log('creating ', sl)
+      return db.stress.create({
+        data: sl,
+      })
+    }),
+  )
 }
+
+seed()

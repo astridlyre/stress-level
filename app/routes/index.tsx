@@ -1,13 +1,14 @@
-import type { ActionFunction } from 'remix'
-import { StressLevel, StressLevelType } from '~/stressLevel'
+import type { ActionFunction, LoaderFunction } from 'remix'
+import type { Stress } from '~/stressLevelProvider.server'
+import { StressLevel } from '~/stressLevel'
 import { json, Link, useActionData, useCatch } from 'remix'
-import { LoaderFunction, useLoaderData, Form } from 'remix'
+import { useLoaderData, Form } from 'remix'
 import {
   MAX_STRESS_LEVEL,
   MIN_STRESS_LEVEL,
   DEFAULT_STRESS_STEP,
 } from '~/stressLevel'
-import { getStore, setStore } from '~/stressLevelProvider.server'
+import { getStress, setStress } from '~/stressLevelProvider.server'
 import { useClasses } from '~/hooks'
 import * as Slider from '@radix-ui/react-slider'
 import { useEffect, useState } from 'react'
@@ -35,19 +36,22 @@ export const action: ActionFunction = async ({ request }) => {
     return badRequest({ message: 'Unable to parse level!', level: 'danger' })
   }
 
-  await setStore(numLevel)
-  return goodRequest({ message: 'Saved!', level: 'good' })
+  const result = await setStress(numLevel)
+  if (result) {
+    return goodRequest({ message: 'Saved!', level: 'good' })
+  }
+  return badRequest({ message: 'Unable to save!', level: 'warning' })
 }
 
 export const loader: LoaderFunction = async () => {
-  return await getStore()
+  return await getStress()
 }
 
 const classFromLevel = (level: number, prefix: 'bg' | 'fg') =>
   prefix + '-' + (level < 33 ? 'good' : level < 66 ? 'warning' : 'danger')
 
 export default function Index() {
-  const data = useLoaderData<StressLevelType>()
+  const data = useLoaderData<Stress>()
   const actionData = useActionData<ActionData>()
 
   const [sl, setSL] = useState(data)

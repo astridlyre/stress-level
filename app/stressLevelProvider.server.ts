@@ -1,5 +1,4 @@
-import path from 'path'
-import fs from 'fs/promises'
+import { db } from '~/db'
 import {
   StressLevel,
   DEFAULT_STRESS_LEVEL,
@@ -7,42 +6,41 @@ import {
   MIN_STRESS_LEVEL,
 } from './stressLevel'
 
-const storePath = path.join(__dirname, '..', 'store')
-const fileName = 'stress.json'
-
-type StressFile = {
+export type Stress = {
   level: number
+  description: string
+  isCurrent?: boolean
 }
 
-export async function getStore() {
+export async function getStress() {
   const fallback = StressLevel(DEFAULT_STRESS_LEVEL)
   try {
-    const file = await fs.readFile(path.join(storePath, fileName), 'utf8')
-
-    if (!file) {
+    const currentLevel = await db.stress.findFirst({
+      where: { isCurrent: true },
+    })
+    if (!currentLevel) {
       return fallback
     }
-
-    const store = JSON.parse(file) as StressFile
-    return store.level >= MIN_STRESS_LEVEL && store.level <= MAX_STRESS_LEVEL
-      ? StressLevel(store.level)
-      : fallback
+    return currentLevel
   } catch {
     return fallback
   }
 }
 
-export async function setStore(input: number) {
+export async function setStress(input: number) {
   const level = Math.min(MAX_STRESS_LEVEL, Math.max(MIN_STRESS_LEVEL, input))
   try {
-    await fs.writeFile(
-      path.join(storePath, fileName),
-      JSON.stringify({ level }),
-      { encoding: 'utf8' },
-    )
-    return StressLevel(level)
+    await db.stress.updateMany({
+      data: { isCurrent: false },
+      where: { isCurrent: true },
+    })
+    await db.stress.updateMany({
+      data: { isCurrent: true },
+      where: { level },
+    })
+    return true
   } catch (err) {
     console.error(err)
-    return null
+    return false
   }
 }
