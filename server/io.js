@@ -19,8 +19,8 @@ io.on('connection', async (socket) => {
   socket.on('stress-update', async (data) => {
     await setStress(data)
 
-    socket.emit('stress-update', await getStress())
-    socket.emit('notification', {
+    io.emit('stress-update', await getStress())
+    io.emit('notification', {
       message: 'Updated stress level',
       quality: 'good',
     })
