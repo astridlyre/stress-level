@@ -1,7 +1,7 @@
-export const MIN_STRESS_LEVEL = 0
-export const MAX_STRESS_LEVEL = 100
-export const DEFAULT_STRESS_LEVEL = 10
-export const DEFAULT_STRESS_STEP = 5
+const MIN_STRESS_LEVEL = 0
+const MAX_STRESS_LEVEL = 100
+const DEFAULT_STRESS_LEVEL = 10
+const DEFAULT_STRESS_STEP = 5
 
 const stressLevelDescriptions = [
   'Literally squirting',
@@ -27,11 +27,11 @@ const stressLevelDescriptions = [
   'Having Covid and a flat-tire',
 ]
 
-function getDescriptionForStressLevel(level: number) {
+function getDescriptionForStressLevel(level) {
   return stressLevelDescriptions[Math.floor(level / 5)] || 'Not stressed'
 }
 
-export function StressLevel(level: number): Stress {
+function StressLevel(level) {
   return {
     level,
     description: getDescriptionForStressLevel(level),
@@ -39,8 +39,10 @@ export function StressLevel(level: number): Stress {
   }
 }
 
-export type Stress = {
-  level: number
-  description: string
-  quality: 'good' | 'warning' | 'danger'
+module.exports = {
+  MIN_STRESS_LEVEL,
+  MAX_STRESS_LEVEL,
+  DEFAULT_STRESS_STEP,
+  DEFAULT_STRESS_LEVEL,
+  StressLevel,
 }

@@ -1,78 +1,70 @@
-import type { ActionFunction, LoaderFunction } from 'remix'
-import type { Stress } from '~/stressLevelProvider.server'
-import { StressLevel } from '~/stressLevel'
-import { json, Link, useActionData, useCatch } from 'remix'
-import { useLoaderData, Form } from 'remix'
+import type { Stress } from '~/stressLevel'
+import { FormEvent, useCallback } from 'react'
+import { DEFAULT_STRESS_LEVEL, StressLevel } from '~/stressLevel'
+import { Link, useCatch } from 'remix'
 import {
   MAX_STRESS_LEVEL,
   MIN_STRESS_LEVEL,
   DEFAULT_STRESS_STEP,
 } from '~/stressLevel'
-import { getStress, setStress } from '~/stressLevelProvider.server'
 import { useClasses } from '~/hooks'
 import * as Slider from '@radix-ui/react-slider'
 import { useEffect, useState } from 'react'
+import { useSocket } from '~/context'
 
 type ActionData = {
-  message: string
-  level: 'good' | 'warning' | 'danger'
+  type: 'stress-update' | 'notification'
+  message?: string
+  quality: 'good' | 'warning' | 'danger'
 }
 
-const LEVEL = 'level'
-const goodRequest = (data: ActionData) => json(data, { status: 201 })
-const badRequest = (data: ActionData) => json(data, { status: 400 })
-
-export const action: ActionFunction = async ({ request }) => {
-  const form = await request.formData()
-  const level = form.get(LEVEL)
-
-  if (typeof level !== 'string') {
-    throw new Response('form not submitted correctly', { status: 422 })
-  }
-
-  const numLevel = Number.parseInt(level, 10)
-
-  if (Number.isNaN(numLevel)) {
-    return badRequest({ message: 'Unable to parse level!', level: 'danger' })
-  }
-
-  const result = await setStress(numLevel)
-  if (result) {
-    return goodRequest({ message: 'Saved!', level: 'good' })
-  }
-  return badRequest({ message: 'Unable to save!', level: 'warning' })
-}
-
-export const loader: LoaderFunction = async () => {
-  return await getStress()
-}
-
-const classFromLevel = (level: number, prefix: 'bg' | 'fg') =>
-  prefix + '-' + (level < 33 ? 'good' : level < 66 ? 'warning' : 'danger')
+const classFromQuality = (quality: string, prefix: 'bg' | 'fg') =>
+  prefix + '-' + quality
 
 export default function Index() {
-  const data = useLoaderData<Stress>()
-  const actionData = useActionData<ActionData>()
-
-  const [sl, setSL] = useState(data)
-  const [showMessage, setShowMessage] = useState(false)
+  const socket = useSocket()
+  const [sl, setSL] = useState<Stress>(StressLevel(DEFAULT_STRESS_LEVEL))
+  const [actionData, setActionData] = useState<ActionData | undefined>()
 
   const containerClasses = useClasses(
     'container',
-    classFromLevel(sl.level, 'bg'),
+    classFromQuality(sl.quality, 'bg'),
   )
 
   const descriptionClasses = useClasses(
     'stress-header-description',
-    classFromLevel(sl.level, 'fg'),
+    classFromQuality(sl.quality, 'fg'),
+  )
+
+  const handleUpdate = useCallback(
+    (data: Stress) => {
+      setSL(data)
+    },
+    [setSL],
+  )
+
+  const handleNotification = useCallback(
+    (data: ActionData) => {
+      setActionData(data)
+      setTimeout(() => setActionData(undefined), 3000)
+    },
+    [setActionData],
   )
 
   useEffect(() => {
-    if (actionData?.message) {
-      setShowMessage(true)
-      setTimeout(() => setShowMessage(false), 3000)
+    if (!socket) return
+    socket.on('stress-update', handleUpdate)
+    socket.on('notification', handleNotification)
+    return () => {
+      socket.off('stress-update', handleUpdate)
+      socket.off('notification', handleNotification)
     }
-  }, [actionData, setShowMessage])
+  }, [socket])
+
+  const handleSubmit = (e: FormEvent) => {
+    e.preventDefault()
+    socket && socket.emit('stress-update', sl)
+  }
 
   return (
     <div className={containerClasses}>
@@ -86,35 +78,37 @@ export default function Index() {
             className='stress-meter'
             min={MIN_STRESS_LEVEL}
             max={MAX_STRESS_LEVEL}
-            value={[sl.level]}
+            value={[sl?.level]}
             step={DEFAULT_STRESS_STEP}
             onValueChange={([value]) => setSL(StressLevel(value))}
           >
             <Slider.Track className='stress-meter-track'>
               <Slider.Range
-                className={`stress-meter-range ${classFromLevel(
-                  sl.level,
+                className={`stress-meter-range ${classFromQuality(
+                  sl.quality,
                   'bg',
                 )}`}
               />
             </Slider.Track>
             <Slider.Thumb className='stress-meter-thumb'>
-              <div className='stress-meter-thumb-percent'>{sl.level}%</div>
+              <div className='stress-meter-thumb-percent'>{sl?.level}%</div>
             </Slider.Thumb>
           </Slider.Root>
           <header className='stress-header'>
             <small className='stress-header-small'>Current stress level:</small>
-            <h2 className={descriptionClasses}>{sl.description}</h2>
+            <h2 className={descriptionClasses}>{sl?.description}</h2>
           </header>
-          <Form className='stress-form' method='post'>
-            <input name={LEVEL} value={sl.level} type='hidden' />
+          <form className='stress-form' onSubmit={handleSubmit}>
             <div className='stress-form-button'>
               <button className='stress-meter-button bg-primary' type='submit'>
                 Lock in stress level
               </button>
-              {showMessage ? (
+              {actionData ? (
                 <p
-                  className={`stress-form-message`}
+                  className={`stress-form-message ${classFromQuality(
+                    actionData.quality,
+                    'fg',
+                  )}`}
                   role='alert'
                   id='save-message'
                 >
@@ -122,7 +116,7 @@ export default function Index() {
                 </p>
               ) : null}
             </div>
-          </Form>
+          </form>
         </section>
       </main>
     </div>

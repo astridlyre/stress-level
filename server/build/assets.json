@@ -1,0 +1,34 @@
+{
+  "version": "76fcd8ad",
+  "entry": {
+    "module": "/build/entry.client-ZOBYEC2N.js",
+    "imports": [
+      "/build/_shared/chunk-7LS7GE37.js"
+    ]
+  },
+  "routes": {
+    "root": {
+      "id": "root",
+      "path": "",
+      "module": "/build/root-5XXLJSZB.js",
+      "imports": [
+        "/build/_shared/chunk-CDSWEHAM.js"
+      ],
+      "hasAction": false,
+      "hasLoader": false,
+      "hasCatchBoundary": false,
+      "hasErrorBoundary": false
+    },
+    "routes/index": {
+      "id": "routes/index",
+      "parentId": "root",
+      "index": true,
+      "module": "/build/routes/index-ETTAZYD3.js",
+      "hasAction": false,
+      "hasLoader": false,
+      "hasCatchBoundary": true,
+      "hasErrorBoundary": true
+    }
+  },
+  "url": "/build/manifest-76FCD8AD.js"
+}

@@ -17,8 +17,6 @@
   --primary: #c5465c;
   --font-primary: 'Short Stack', cursive;
 
-  --transition: all 0.1s ease-out;
-
   --base-unit: 0.32rem;
   --base-spacing: calc(var(--base-unit) * 4);
   --sm-spacing: calc(var(--base-spacing) * 2);
@@ -45,7 +43,6 @@ body {
   padding-top: 10vh;
   align-items: center;
   min-height: 100vh;
-  transition: var(--transition);
 }
 
 .site-heading {
@@ -92,13 +89,11 @@ body {
 .stress-meter-button:hover {
   filter: contrast(1.5);
   cursor: pointer;
-  transition: var(--transition);
 }
 
 .stress-meter-button:focus {
   outline-color: var(--dark);
   box-shadow: 0 0 0 0.75rem rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
 }
 
 .stress-form {
@@ -161,11 +156,6 @@ body {
   border-radius: 1.75rem;
   display: block;
   position: relative;
-  transition: var(--transition);
-}
-.stress-meter-thumb:hover,
-.stress-meter-thumb:focus {
-  transform: scale(1.05);
 }
 
 .stress-meter-thumb:hover {

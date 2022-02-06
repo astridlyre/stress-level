@@ -45,7 +45,6 @@ body {
   padding-top: 10vh;
   align-items: center;
   min-height: 100vh;
-  transition: var(--transition);
 }
 
 .site-heading {
@@ -161,11 +160,6 @@ body {
   border-radius: 1.75rem;
   display: block;
   position: relative;
-  transition: var(--transition);
-}
-.stress-meter-thumb:hover,
-.stress-meter-thumb:focus {
-  transform: scale(1.05);
 }
 
 .stress-meter-thumb:hover {

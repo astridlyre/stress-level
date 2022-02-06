@@ -1,11 +1,8 @@
+/* eslint-disable @typescript-eslint/no-var-requires */
 /* eslint-disable no-var */
-import { PrismaClient } from '@prisma/client'
+const { PrismaClient } = require('@prisma/client')
 
-let db: PrismaClient
-
-declare global {
-  var __db: PrismaClient | undefined
-}
+let db
 
 if (process.env.NODE_ENV === 'production') {
   db = new PrismaClient()
@@ -18,4 +15,4 @@ if (process.env.NODE_ENV === 'production') {
   db = global.__db
 }
 
-export { db }
+module.exports = { db }

@@ -45,7 +45,6 @@ body {
   padding-top: 10vh;
   align-items: center;
   min-height: 100vh;
-  transition: var(--transition);
 }
 
 .site-heading {
@@ -98,7 +97,6 @@ body {
 .stress-meter-button:focus {
   outline-color: var(--dark);
   box-shadow: 0 0 0 0.75rem rgba(0, 0, 0, 0.1);
-  transition: var(--transition);
 }
 
 .stress-form {
@@ -161,11 +159,6 @@ body {
   border-radius: 1.75rem;
   display: block;
   position: relative;
-  transition: var(--transition);
-}
-.stress-meter-thumb:hover,
-.stress-meter-thumb:focus {
-  transform: scale(1.05);
 }
 
 .stress-meter-thumb:hover {

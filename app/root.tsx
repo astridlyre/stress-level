@@ -7,7 +7,11 @@ import {
   ScrollRestoration,
 } from 'remix'
 import type { MetaFunction, LinksFunction } from 'remix'
+import type { Socket } from 'socket.io-client'
+import { io } from 'socket.io-client'
 import stylesUrl from './styles/index.css'
+import { useEffect, useState } from 'react'
+import { SocketProvider } from './context'
 
 export const meta: MetaFunction = () => {
   return { title: 'Kippum Stress-o-Meter' }
@@ -39,6 +43,23 @@ export const links: LinksFunction = () => [
 ]
 
 export default function App() {
+  const [socket, setSocket] = useState<Socket>()
+
+  useEffect(() => {
+    const newSocket = io()
+    setSocket(newSocket)
+    return () => {
+      newSocket.close()
+    }
+  }, [])
+
+  useEffect(() => {
+    if (!socket) return
+    socket.on('confirmation', (data) => {
+      console.log(data)
+    })
+  }, [socket])
+
   return (
     <html lang='en'>
       <head>
@@ -48,7 +69,9 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <Outlet />
+        <SocketProvider socket={socket}>
+          <Outlet />
+        </SocketProvider>
         <ScrollRestoration />
         <Scripts />
         <LiveReload />

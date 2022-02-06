@@ -35,6 +35,7 @@ async function seed() {
   const levels: Stress[] = stressLevelDescriptions.map((desc) => ({
     level: (i += 5),
     description: desc,
+    quality: i < 33 ? 'good' : i < 66 ? 'warning' : 'danger',
   }))
   return await Promise.all(
     levels.map((sl) => {
