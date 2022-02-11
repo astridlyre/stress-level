@@ -33,7 +33,11 @@ export default function StressOMeter({
   return (
     <div>
       <header className='stress-o-meter-header'>
-        <h1 className='site-heading'>Kippum&apos;s Stress-o-Meter</h1>
+        <h1 className='site-heading'>
+          Kippum&apos;s
+          <br />
+          Stress-o-Meter
+        </h1>
         <p className='site-subheading'>How stressed is my Kippums?</p>
       </header>
       <section className='stress-meter-container'>
