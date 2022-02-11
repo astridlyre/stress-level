@@ -42,7 +42,6 @@ export default function StressOMeter({
           min={MIN_STRESS_LEVEL}
           max={MAX_STRESS_LEVEL}
           value={[currentStressLevel?.level]}
-          step={1}
           onValueChange={updateStressLevel}
         >
           <Slider.Track className='stress-meter-track'>

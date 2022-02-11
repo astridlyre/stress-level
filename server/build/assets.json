@@ -1,5 +1,5 @@
 {
-  "version": "4ceea3d8",
+  "version": "773f88e4",
   "entry": {
     "module": "/build/entry.client-ZOBYEC2N.js",
     "imports": [
@@ -23,12 +23,12 @@
       "id": "routes/index",
       "parentId": "root",
       "index": true,
-      "module": "/build/routes/index-77CCKRYW.js",
+      "module": "/build/routes/index-2Q5SFCKL.js",
       "hasAction": false,
       "hasLoader": false,
       "hasCatchBoundary": true,
       "hasErrorBoundary": true
     }
   },
-  "url": "/build/manifest-4CEEA3D8.js"
+  "url": "/build/manifest-773F88E4.js"
 }

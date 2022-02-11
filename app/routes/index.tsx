@@ -1,3 +1,4 @@
+/* eslint-disable no-unused-vars */
 import type { Stress, ActionData } from '~/stressLevel'
 import { useCallback } from 'react'
 import { DEFAULT_STRESS_LEVEL, StressLevel } from '~/stressLevel'
@@ -8,6 +9,22 @@ import { useClasses } from '~/hooks'
 import { classFromQuality } from '~/utils'
 import StressOMeter from '~/components/stress-o-meter'
 import AddStressLevel from '~/components/add-stress-level'
+
+declare global {
+  interface Array<T> {
+    [index: number]: T
+    findRight(fn: (v: T) => boolean): T | null
+  }
+}
+
+Array.prototype.findRight = function findRight(fn: (v: unknown) => boolean) {
+  for (let i = this.length - 1; i >= 0; i--) {
+    const value = this[i]
+    if (fn(value)) {
+      return value
+    }
+  }
+}
 
 export default function Index() {
   const socket = useSocket()
@@ -21,8 +38,11 @@ export default function Index() {
   const [showAddForm, setShowAddForm] = useState(false)
 
   const updateStressLevel = ([value]: number[]) => {
-    const newStressLevel = stressLevels?.find((sl) => sl.level >= value)
-    setCurrentStressLevel(newStressLevel!)
+    const newStressLevel =
+      value < currentStressLevel.level
+        ? stressLevels?.findRight((sl) => sl.level <= value)
+        : stressLevels?.find((sl) => sl.level >= value)
+    newStressLevel && setCurrentStressLevel(newStressLevel)
   }
 
   const containerClasses = useClasses(
