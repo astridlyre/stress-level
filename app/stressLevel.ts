@@ -43,4 +43,12 @@ export type Stress = {
   level: number
   description: string
   quality: 'good' | 'warning' | 'danger'
+  isCurrent?: boolean
+  id?: string
+}
+
+export type ActionData = {
+  type: 'stress-update' | 'notification'
+  message?: string
+  quality: 'good' | 'warning' | 'danger'
 }

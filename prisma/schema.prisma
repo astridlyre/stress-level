@@ -12,7 +12,7 @@ datasource db {
 
 model Stress {
 	id String @id @default(uuid())
-	level Int
+	level Int @unique
 	description String
 	quality String
 	isCurrent Boolean @default(false)

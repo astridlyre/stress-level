@@ -28,6 +28,7 @@ const stressLevelDescriptions = [
 type Stress = {
   level: number
   description: string
+  quality: string
 }
 
 async function seed() {

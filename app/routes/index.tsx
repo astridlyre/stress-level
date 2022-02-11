@@ -1,46 +1,44 @@
-import type { Stress } from '~/stressLevel'
-import { FormEvent, useCallback } from 'react'
+import type { Stress, ActionData } from '~/stressLevel'
+import { useCallback } from 'react'
 import { DEFAULT_STRESS_LEVEL, StressLevel } from '~/stressLevel'
-import { Link, useCatch } from 'remix'
-import {
-  MAX_STRESS_LEVEL,
-  MIN_STRESS_LEVEL,
-  DEFAULT_STRESS_STEP,
-} from '~/stressLevel'
-import { useClasses } from '~/hooks'
-import * as Slider from '@radix-ui/react-slider'
-import { useEffect, useState } from 'react'
 import { useSocket } from '~/context'
-
-type ActionData = {
-  type: 'stress-update' | 'notification'
-  message?: string
-  quality: 'good' | 'warning' | 'danger'
-}
-
-const classFromQuality = (quality: string, prefix: 'bg' | 'fg') =>
-  prefix + '-' + quality
+import { Link, useCatch } from 'remix'
+import { useEffect, useState } from 'react'
+import { useClasses } from '~/hooks'
+import { classFromQuality } from '~/utils'
+import StressOMeter from '~/components/stress-o-meter'
+import AddStressLevel from '~/components/add-stress-level'
 
 export default function Index() {
   const socket = useSocket()
-  const [sl, setSL] = useState<Stress>(StressLevel(DEFAULT_STRESS_LEVEL))
+  const [stressLevels, setStressLevels] = useState<Stress[] | undefined>()
+
+  const [currentStressLevel, setCurrentStressLevel] = useState<Stress>(
+    StressLevel(DEFAULT_STRESS_LEVEL),
+  )
+
   const [actionData, setActionData] = useState<ActionData | undefined>()
+  const [showAddForm, setShowAddForm] = useState(false)
+
+  const updateStressLevel = ([value]: number[]) => {
+    const newStressLevel = stressLevels?.find((sl) => sl.level >= value)
+    setCurrentStressLevel(newStressLevel!)
+  }
 
   const containerClasses = useClasses(
     'container',
-    classFromQuality(sl.quality, 'bg'),
-  )
-
-  const descriptionClasses = useClasses(
-    'stress-header-description',
-    classFromQuality(sl.quality, 'fg'),
+    classFromQuality(currentStressLevel.quality, 'bg'),
   )
 
   const handleUpdate = useCallback(
-    (data: Stress) => {
-      setSL(data)
+    (data: Stress[]) => {
+      setShowAddForm(false)
+      setStressLevels(data)
+      setCurrentStressLevel(
+        data.find((sl) => sl.isCurrent) ?? StressLevel(DEFAULT_STRESS_LEVEL),
+      )
     },
-    [setSL],
+    [setCurrentStressLevel],
   )
 
   const handleNotification = useCallback(
@@ -50,6 +48,11 @@ export default function Index() {
     },
     [setActionData],
   )
+
+  const handleDelete = useCallback(() => {
+    console.log(currentStressLevel)
+    socket && socket.emit('delete-stress-level', currentStressLevel)
+  }, [socket, currentStressLevel])
 
   useEffect(() => {
     if (!socket) return
@@ -61,63 +64,38 @@ export default function Index() {
     }
   }, [socket])
 
-  const handleSubmit = (e: FormEvent) => {
-    e.preventDefault()
-    socket && socket.emit('stress-update', sl)
-  }
-
   return (
     <div className={containerClasses}>
       <main className='stress-o-meter'>
-        <header className='stress-o-meter-header'>
-          <h1 className='site-heading'>Kippum&apos;s Stress-o-Meter</h1>
-          <p className='site-subheading'>How stressed is my Kippums?</p>
-        </header>
-        <section className='stress-meter-container'>
-          <Slider.Root
-            className='stress-meter'
-            min={MIN_STRESS_LEVEL}
-            max={MAX_STRESS_LEVEL}
-            value={[sl?.level]}
-            step={DEFAULT_STRESS_STEP}
-            onValueChange={([value]) => setSL(StressLevel(value))}
+        {showAddForm ? (
+          <AddStressLevel socket={socket} />
+        ) : (
+          <StressOMeter
+            currentStressLevel={currentStressLevel}
+            updateStressLevel={updateStressLevel}
+            socket={socket}
+            actionData={actionData}
+          />
+        )}
+        <div className='justify-right'>
+          {!showAddForm && (
+            <button
+              type='button'
+              onClick={handleDelete}
+              title='Delete level'
+              className='stress-meter-button bg-danger'
+            >
+              Delete level
+            </button>
+          )}
+          <button
+            type='button'
+            onClick={() => setShowAddForm(!showAddForm)}
+            className='stress-meter-button bg-gray mr-auto'
           >
-            <Slider.Track className='stress-meter-track'>
-              <Slider.Range
-                className={`stress-meter-range ${classFromQuality(
-                  sl.quality,
-                  'bg',
-                )}`}
-              />
-            </Slider.Track>
-            <Slider.Thumb className='stress-meter-thumb'>
-              <div className='stress-meter-thumb-percent'>{sl?.level}%</div>
-            </Slider.Thumb>
-          </Slider.Root>
-          <header className='stress-header'>
-            <small className='stress-header-small'>Current stress level:</small>
-            <h2 className={descriptionClasses}>{sl?.description}</h2>
-          </header>
-          <form className='stress-form' onSubmit={handleSubmit}>
-            <div className='stress-form-button'>
-              <button className='stress-meter-button bg-primary' type='submit'>
-                Lock in stress level
-              </button>
-              {actionData ? (
-                <p
-                  className={`stress-form-message ${classFromQuality(
-                    actionData.quality,
-                    'fg',
-                  )}`}
-                  role='alert'
-                  id='save-message'
-                >
-                  {actionData?.message}
-                </p>
-              ) : null}
-            </div>
-          </form>
-        </section>
+            {showAddForm ? 'Cancel' : 'Add new level'}
+          </button>
+        </div>
       </main>
     </div>
   )
@@ -129,7 +107,7 @@ export function CatchBoundary() {
   if (caught.status === 401) {
     return (
       <div className='container'>
-        <h1></h1>
+        <h1>Oh no</h1>
       </div>
     )
   }

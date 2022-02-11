@@ -16,6 +16,7 @@
   --light: #f8f9f7;
   --primary: #c5465c;
   --font-primary: 'Short Stack', cursive;
+  --gray: #9f9f9f;
 
   --transition: all 0.1s ease-out;
 
@@ -72,6 +73,7 @@ body {
 }
 
 .stress-o-meter {
+  width: 100%;
   max-width: 48rem;
   background-color: var(--light);
   color: var(--dark);
@@ -107,6 +109,7 @@ body {
   flex-wrap: wrap;
   gap: var(--base-spacing);
   margin-top: var(--sm-spacing);
+  margin-bottom: var(--sm-spacing);
   position: relative;
 }
 
@@ -220,4 +223,55 @@ body {
 
 .bg-primary {
   background-color: var(--primary);
+}
+
+.bg-gray {
+  background-color: #9f9f9f;
+}
+
+.add-form {
+  display: flex;
+  flex-flow: column nowrap;
+  margin: var(--base-spacing) 0;
+  gap: var(--base-spacing);
+}
+
+.labeled-input {
+  display: flex;
+  flex-direction: column;
+  gap: var(--base-unit);
+}
+
+.input {
+  padding: var(--base-spacing);
+  border: 2px solid var(--gray);
+  border-radius: var(--base-spacing);
+  color: var(--dark);
+}
+
+.input::placeholder {
+  color: var(--gray);
+}
+
+.toggle-button {
+  margin-left: 65%;
+  width: 35%;
+}
+
+.mb-sm {
+  margin-bottom: var(--sm-spacing);
+}
+
+.mb-base {
+  margin-bottom: var(--base-spacing);
+}
+
+.mt-sm {
+  margin-top: var(--sm-spacing);
+}
+
+.justify-right {
+  display: flex;
+  justify-content: flex-end;
+  gap: var(--base-spacing);
 }
