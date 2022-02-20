@@ -49,6 +49,17 @@ async function getStress() {
   }
 }
 
+async function getCurrentLevel() {
+  try {
+    const stressLevel = await db.stress.findFirst({
+      where: { isCurrent: true },
+    })
+    return stressLevel
+  } catch {
+    return {}
+  }
+}
+
 async function setStress(sl) {
   const level = Math.min(MAX_STRESS_LEVEL, Math.max(MIN_STRESS_LEVEL, sl.level))
   try {
@@ -105,4 +116,4 @@ async function deleteStress(sl) {
   }
 }
 
-module.exports = { io, server }
+module.exports = { io, server, getCurrentLevel }
